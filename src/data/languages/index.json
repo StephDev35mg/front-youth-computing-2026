@@ -1,0 +1,11 @@
+{
+  "en": {
+    "hello": "Hello"
+  },
+  "fr": {
+    "hello": "Bonjour"
+  },
+  "malagasy": {
+    "hello": "Salama"
+  }
+}
