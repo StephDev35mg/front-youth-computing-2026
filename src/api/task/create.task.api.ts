@@ -4,9 +4,9 @@ import { AxiosErrorCustom } from "../axios.error.custom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface CreateTaskData {
-  nameTask: string;
-  imageTask: string;
-  descriptionTask: string;
+  nameTask: string
+  imageTask: string
+  DescriptionTask: string
 }
 
 export const createTask = async (taskData: CreateTaskData) => {
