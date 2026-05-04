@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 export default function Welcome() {
   const shouldReduceMotion = useReducedMotion()
 
-  // Les 12 images (même largeur/hauteur pour toutes)
+  // ariane
   const ImagesUrls = Array.from(
     { length: 12 },
     (_, i) => `https://picsum.photos/720/520?random=${i + 1}`,
