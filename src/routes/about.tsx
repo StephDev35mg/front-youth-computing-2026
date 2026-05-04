@@ -31,7 +31,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -39,10 +38,42 @@ import {
 } from '@/components/ui/dialog'
 import { Field, FieldGroup } from '@/components/ui/field'
 import { Label } from '@/components/ui/label'
+import { useCreateTask } from '#/api/task/create.task.api'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { useDeleteTask } from '#/api/task/delete.task.api'
 
 function RouteComponent() {
-  const { data: Tasks, isPending, isError } = useGetTasks()
+  const { data: Tasks, isPending, isError, refetch } = useGetTasks()
+  const { mutate: createTask, isPending: isCreatingTask, isError: isCreateTaskError,isSuccess: isCreateTaskSuccess } = useCreateTask()
+  const { mutate: deleteTask ,isSuccess: isDeleteTaskSuccess} = useDeleteTask()
   const totalTask = Tasks?.length || 0
+
+  const [nameTask, setNameTask] = useState<string>('')
+  const [imageTask, setImageTask] = useState<string>('')
+  const [DescriptionTask, setDescriptionTask] = useState<string>('')
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const handleCreateTask = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    createTask({ nameTask, imageTask, DescriptionTask })
+    setIsOpen(false)
+  }
+  const handleDeleteTask = (id: number) => {
+    deleteTask(id)
+    isDeleteTaskSuccess && toast.success('Task deleted successfully!')
+  }
+  useEffect(() => {
+    isCreateTaskError && toast.error('Failed to create task. Please try again.')
+    isCreateTaskSuccess && toast.success('Task created successfully!')
+    refetch()
+  }, [Tasks, isCreateTaskError, isCreateTaskSuccess, refetch])
+
+  const resetAddForm = () => {
+    setNameTask('')
+    setImageTask('')
+    setDescriptionTask('')
+  }
 
   return (
     <section className='min-h-screen w-full bg-gray-50 p-8 flex flex-col items-center gap-8'>
@@ -59,52 +90,60 @@ function RouteComponent() {
             placeholder='Search task...'
           />
         </div>
-        <Dialog>
-          <form>
-            <DialogTrigger>
-              <Button>
-                <PlusIcon className='w-5 h-5' />
-                <span>add Task</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className='sm:max-w-sm'>
-              <DialogHeader>
-                <DialogTitle>Add Task</DialogTitle>
-              </DialogHeader>
-              <FieldGroup>
-                <Field>
-                  <Label htmlFor='task-name'>Task Name</Label>
-                  <Input
-                    id='task-name'
-                    name='taskName'
-                    placeholder='Enter task name'
-                  />
-                </Field>
-                <Field>
-                  <Label htmlFor='task-image'>Image URL</Label>
-                  <Input
-                    id='task-image'
-                    name='taskImage'
-                    placeholder='Enter image URL'
-                  />
-                </Field>
-                <Field>
-                  <Label htmlFor='task-description'>Description</Label>
-                  <Input
-                    id='task-description'
-                    name='taskDescription'
-                    placeholder='Enter task description'
-                  />
-                </Field>
-              </FieldGroup>
-              <DialogFooter>
-                <DialogClose>
-                  <Button variant='outline'>Cancel</Button>
-                </DialogClose>
-                <Button type='submit'>Add Task</Button>
-              </DialogFooter>
-            </DialogContent>
-          </form>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger>
+            <Button>
+              <PlusIcon className='w-5 h-5' />
+              <span>add Task</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className='sm:max-w-sm'>
+            <DialogHeader>
+              <DialogTitle>
+                {isCreatingTask ? 'Creating Task...' : 'Add Task'}
+              </DialogTitle>
+            </DialogHeader>
+            <FieldGroup>
+              <Field>
+                <Label htmlFor='task-name'>Task Name</Label>
+                <Input
+                  id='task-name'
+                  name='taskName'
+                  value={nameTask}
+                  onChange={(e) => setNameTask(e.target.value)}
+                  placeholder='Enter task name'
+                />
+              </Field>
+              <Field>
+                <Label htmlFor='task-image'>Image URL</Label>
+                <Input
+                  id='task-image'
+                  name='taskImage'
+                  value={imageTask}
+                  onChange={(e) => setImageTask(e.target.value)}
+                  placeholder='Enter image URL'
+                />
+              </Field>
+              <Field>
+                <Label htmlFor='task-description'>Description</Label>
+                <Input
+                  id='task-description'
+                  name='taskDescription'
+                  value={DescriptionTask}
+                  onChange={(e) => setDescriptionTask(e.target.value)}
+                  placeholder='Enter task description'
+                />
+              </Field>
+            </FieldGroup>
+            <DialogFooter>
+              <DialogClose>
+                <Button variant='outline' onClick={resetAddForm}>
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button onClick={handleCreateTask}>Add Task</Button>
+            </DialogFooter>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -129,7 +168,7 @@ function RouteComponent() {
                     <Edit2Icon className='w-7 h-7 text-green-500' />
                     <span className='text-green-500'>Edit</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDeleteTask(item.id)}>
                     <Trash2Icon className='w-7 h-7 text-destructive' />
                     <span className='text-destructive'>Delete</span>
                   </DropdownMenuItem>
