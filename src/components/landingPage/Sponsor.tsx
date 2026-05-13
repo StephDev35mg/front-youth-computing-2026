@@ -1,7 +1,7 @@
 export default function Sponsor() {
   return (
     <section className='flex flex-col items-center justify-center gap-6 py-16 sm:py-20'>
-      <h1 className='text-center text-3xl font-semibold sm:text-4xl'>
+      <h1 className='text-center text-4xl font-light text-foreground mb-6 sm:text-5xl lg:text-6xl'>
         Organized By
       </h1>
       <AnimatedLogoCloud />
@@ -31,8 +31,16 @@ const logos = [
     url: '/assets/Youth_computing.png',
   },
   {
+    name: 'Youth Computing',
+    url: '/assets/Bni.png',
+  },
+  {
     name: 'Yas',
     url: '/assets/Yas.png',
+  },
+  {
+    name: 'Youth Computing',
+    url: '/assets/Relia.jpg',
   },
   {
     name: 'UN IT',
@@ -69,7 +77,7 @@ const AnimatedLogoCloud = () => {
                   key={logo.name}
                   src={logo.url}
                   alt={logo.name}
-                  className='h-18 w-32 object-contain px-2 sm:h-20 sm:w-32'
+                  className='h-35 w-35 object-contain px-2 sm:h-35 sm:w-35'
                 />
               ))}
             </div>

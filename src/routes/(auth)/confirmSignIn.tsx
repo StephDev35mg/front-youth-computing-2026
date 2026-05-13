@@ -59,7 +59,7 @@ function OtpVerification() {
     })
   }, [otpSent, router])
 
-  // ✅ Timer propre (une seule instance)
+  // Timer propre (une seule instance)
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((t) => {
@@ -113,7 +113,14 @@ function OtpVerification() {
     `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`
 
   return (
-    <div className='min-h-screen flex items-center justify-center p-4'>
+    <div className='min-h-screen relative overflow-hidden flex items-center justify-center p-4'>
+      <img
+        src='/assets/forme1.png'
+        className='absolute top-0 left-0 w-40 md:w-64 lg:w-120 
+             -translate-x-1/4 -translate-y-1/4 
+             pointer-events-none select-none'
+        alt=''
+      />
       <Card className='w-full max-w-md'>
         <CardHeader>
           <CardTitle className='text-center text-4xl'>Vérification</CardTitle>
@@ -175,6 +182,14 @@ function OtpVerification() {
           </div>
         </CardContent>
       </Card>
+      <img
+        src='/assets/forme1.png'
+        className='absolute bottom-0 right-0 
+             w-32 md:w-64 lg:w-120 rotate-160
+             translate-x-1/4 translate-y-1/4
+             pointer-events-none select-none'
+        alt=''
+      />
     </div>
   )
 }

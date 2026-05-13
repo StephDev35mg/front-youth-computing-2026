@@ -75,7 +75,7 @@ export default function Welcome() {
           </div>
         </div>
 
-        <div className='absolute inset-0 bg-gradient-to-b from-black/25 via-black/10 to-black/30' />
+        <div className='absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/20' />
         <div className='absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.05),rgba(0,0,0,0.35)_60%,rgba(0,0,0,0.55)_100%)]' />
       </div>
 
@@ -101,7 +101,7 @@ export default function Welcome() {
                 english
               </option>
             </select>
-
+    
             {/* Flag en arrière-plan */}
             <img
               src='https://flagcdn.com/16x12/us.png'
@@ -116,23 +116,42 @@ export default function Welcome() {
             />
           </div>
         </div>
+        
       </div>
+      
 
       {/* CONTENT */}
       <div className='relative z-10 flex h-screen  items-center justify-center px-4 sm:px-6'>
         <div className='w-full max-w-lg'>
-          <div className='rounded-[28px] bg-background px-6 py-8 sm:px-8 sm:py-10 shadow-2xl shadow-black/20 ring-1 ring-black/5'>
-            <h1 className='text-center text-4xl font-semibold leading-[1.05] tracking-tight text-black sm:text-5xl'>
-              Your business
-              <br />
-              with My app
-            </h1>
-            <p className='mt-4 text-pretty text-base text-black/65 sm:text-lg'>
-              Try 3 days free, then <span className='font-medium'>$1</span>
-              /month for 3 months.
-              <br />
-              What are you waiting for?
-            </p>
+          <div className='relative rounded-[28px] bg-background px-6 py-8 sm:px-8 sm:py-10 shadow-2xl shadow-black/20 ring-1 ring-black/5 overflow-hidden'>
+            {/* Image décorative */}
+            <img
+              src='/assets/forme3.png'
+              className='absolute bottom-0 left-0 
+               w-40 md:w-64 lg:w-60
+               -translate-x-1/4 translate-y-1/4
+               rotate-90
+               
+               pointer-events-none select-none
+               z-0'
+              alt=''
+            />
+
+            {/* Contenu */}
+            <div className='relative z-10'>
+              <h1 className='text-center text-4xl font-semibold leading-[1.05] tracking-tight text-black sm:text-5xl'>
+                Your business
+                <br />
+                with My app
+              </h1>
+
+              <p className='mt-4 text-pretty text-base text-black/65 sm:text-lg'>
+                Try 3 days free, then <span className='font-medium'>$1</span>
+                /month for 3 months.
+                <br />
+                What are you waiting for?
+              </p>
+            </div>
           </div>
 
           <div className='mt-5 rounded-[28px] bg-black/85 px-5 py-5 sm:px-7 sm:py-6 shadow-2xl shadow-black/30 ring-1 ring-white/10 backdrop-blur'>
@@ -144,18 +163,18 @@ export default function Welcome() {
             </div>
 
             <div className='mt-4 flex flex-col gap-2 sm:flex-row'>
-              <Button className='flex-1'>
+              <Button variant={'link'} className='flex-1'>
                 <Link
                   to='/signIn'
-                  className='flex h-14 flex-1 items-center justify-center rounded-full  px-6 text-base font-medium text-black'
+                  className='flex h-14 flex-1 bg-white items-center justify-center rounded-full  px-6 text-base font-medium text-black'
                 >
                   Let’s get started
                 </Link>
               </Button>
-              <Button variant={"ghost"} className='flex-1'>
+              <Button variant={'link'} className='flex-1'>
                 <Link
                   to='/signUp'
-                  className='flex h-14 flex-1 items-center justify-center bg-white/10 rounded-full px-6 text-base font-medium text-white'
+                  className='flex h-14 flex-1 items-center justify-center bg-[#D4BBFF] rounded-full px-6 text-base font-medium text-white'
                 >
                   Sign up
                 </Link>

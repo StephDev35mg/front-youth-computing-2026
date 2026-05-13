@@ -32,11 +32,7 @@ const navigation = {
 
 const TwoColumnFooter = () => {
   return (
-    <footer className='font-inter w-full'>
-      <h2 id='footer-heading' className='sr-only'>
-        Footer
-      </h2>
-
+    <footer className='w-full'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         <div className='flex flex-col justify-between gap-12 lg:flex-row lg:gap-16'>
           <div className='space-y-8'>
@@ -103,6 +99,17 @@ const TwoColumnFooter = () => {
           </p>
         </div>
       </div>
+      {/* <img
+        src='/assets/forme3.png'
+        className='fixed bottom-0 left-0 
+               w-40 md:w-64 lg:w-80
+               -translate-x-1/4 translate-y-1/4
+               rotate-50
+               
+               pointer-events-none select-none
+               z-0'
+        alt=''
+      /> */}
     </footer>
   )
 }

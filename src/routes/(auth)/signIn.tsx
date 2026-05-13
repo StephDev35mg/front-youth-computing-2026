@@ -22,6 +22,8 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSignInClient } from '@/api/auth/signin.client.api'
 import { toast } from 'sonner'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
+
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Adresse email required' }),
@@ -64,10 +66,18 @@ function SignIn() {
   }, [signInIsError])
 
   return (
-    <div className='min-h-screen w-full flex items-center justify-center from-background to-muted/30 p-4'>
+    <div className='min-h-screen w-full flex items-center justify-center relative overflow-hidden'>
+      <img
+        src='/assets/forme3.png'
+        className='absolute top-0 left-0 w-40 md:w-64 lg:w-120 
+             -translate-x-1/4 -translate-y-1/4 
+             pointer-events-none select-none'
+        alt=''
+      />
       <div className='w-full max-w-md flex flex-col gap-4'>
         <CardHeader className='space-y-1 pb-2'>
           <CardTitle className='text-4xl text-center'>Welcome Back</CardTitle>
+          
           <CardDescription className='text-center'>
             Entrez vos identifiants pour accéder à votre compte
           </CardDescription>
@@ -140,6 +150,12 @@ function SignIn() {
           </Button>
         </CardFooter>
       </div>
+      <DotLottieReact
+        src='https://lottie.host/a22979ec-7626-4a13-9ad9-705ee249be14/O4ptf0McXA.lottie'
+        loop
+        autoplay
+        className='fixed bottom-4 right-10 w-42 h-42 pointer-events-none select-none'
+      />
     </div>
   )
 }

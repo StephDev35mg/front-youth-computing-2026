@@ -74,10 +74,10 @@ const Testimonials = () => {
           viewport={{ once: true }}
           className='mx-auto flex max-w-[540px] flex-col items-center'
         >
-          <div className='rounded-lg border px-4 py-1'>Functionnality</div>
+          
 
-          <h2 className='mt-5 text-center text-3xl font-bold sm:text-4xl'>
-            What our users say
+          <h2 className='text-4xl font-light text-foreground mb-6 sm:text-5xl lg:text-6xl'>
+            Functionnality
           </h2>
 
           <p className='mt-5 text-center opacity-75'>
