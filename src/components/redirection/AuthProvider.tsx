@@ -70,13 +70,13 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
     return () => {
       mounted = false
     }
-  }, []) //  IMPORTANT : PAS de dépendance
+  }, []) 
 
   //  Loader pendant vérification auth
   if (checking) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <Loading color='secondary' size={40} />
+        <Loading color='primary' size={40} />
       </div>
     )
   }

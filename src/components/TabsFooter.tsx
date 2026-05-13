@@ -55,7 +55,7 @@ const transition = { delay: 0.1, duration: 0.2 }
 export function ExpandedTabs({
   tabs,
   className,
-  activeColor = 'text-white',
+  activeColor = 'text-black',
   selectedIndex,
   defaultSelectedIndex = null,
   onChange,
@@ -110,7 +110,7 @@ export function ExpandedTabs({
             className={cn(
               'relative flex items-center rounded-4xl px-3 py-2 text-sm font-medium transition-colors duration-300',
               selected === index
-                ? cn('bg-primary shadow-2xl shadow-primary/80', activeColor)
+                ? cn('bg-primary shadow-2xl  shadow-primary/80', activeColor)
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground',
             )}
           >
