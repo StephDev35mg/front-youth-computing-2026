@@ -23,3 +23,14 @@ export const GET_TASKS = 'tasks/'
 export const CREATE_TASK = 'tasks/create/'
 export const UPDATE_TASK = 'tasks/update/' 
 export const DELETE_TASK = 'tasks/delete/'
+
+
+//Zones
+export const GET_ZONES ='zone/get_zone/'
+
+//Reports
+export const GET_REPORTS = 'reports/'
+
+
+
+
