@@ -11,6 +11,7 @@ export default function AppBottomNav() {
 
   const tabs = [
     { title: 'Dashboard', icon: Home, to: '/dashboard' },
+    { title: 'Dashboard', icon: Home, to: '/carte' },
     { title: 'Settings', icon: Settings, to: '/settings' },
     { title: 'Security', icon: Shield, to: '/security' },
     { title: 'Notifications', icon: Bell, to: '/notifications', badge: true },
