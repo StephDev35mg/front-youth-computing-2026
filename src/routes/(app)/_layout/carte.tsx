@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Circle,
@@ -11,6 +11,10 @@ import {
   OverlayView,
 } from '@react-google-maps/api'
 
+import { useGetZones } from '@/api/carte/get_zone.api'
+import type { ZONE } from '@/api/carte/get_zone.api'
+import { useGetZoneStatus } from '@/api/carte/get_status.api'
+import type { ZONE_STATUS } from '@/api/carte/get_status.api'
 export const Route = createFileRoute('/(app)/_layout/carte')({
   validateSearch: (search: Record<string, unknown>) => ({
     connected:
@@ -29,6 +33,18 @@ function RouteComponent() {
   const [service, setService] = useState<ServiceType>('WATER')
   const [status, setStatus] = useState<StatusFilter>('ALL')
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null)
+  const {
+    data: apiZones = [],
+    isLoading: isLoadingZones,
+    isError: isZonesError,
+    error: zonesError,
+  } = useGetZones()
+  const {
+    data: apiZoneStatus = [],
+    isLoading: isLoadingZoneStatus,
+    isError: isZoneStatusError,
+    error: zoneStatusError,
+  } = useGetZoneStatus()
 
   useEffect(() => {
     if (!connected) return
@@ -41,23 +57,75 @@ function RouteComponent() {
     })
   }, [connected, router])
 
-  const center = {
-    lat: -21.4522,
-    lng: 47.0851,
-  }
+  useEffect(() => {
+    if (isLoadingZones || isLoadingZoneStatus) {
+      console.log('[Carte] Chargement des zones et statuts depuis Django...')
+      return
+    }
 
-  const filteredZones = fokontanyZones.filter((zone) => {
+    if (isZonesError) {
+      console.error('[Carte] Erreur chargement zones :', zonesError)
+      return
+    }
+
+    if (isZoneStatusError) {
+      console.error('[Carte] Erreur chargement statuts zones :', zoneStatusError)
+      return
+    }
+
+    console.log('[Carte] Zones recues :', apiZones)
+    console.log('[Carte] Statuts recues :', apiZoneStatus)
+    console.log(
+      `[Carte] Correspondance : ${apiZones.length} zone(s), ${apiZoneStatus.length} statut(s)`,
+    )
+  }, [
+    apiZones,
+    apiZoneStatus,
+    isLoadingZones,
+    isLoadingZoneStatus,
+    isZonesError,
+    isZoneStatusError,
+    zonesError,
+    zoneStatusError,
+  ])
+
+  const zones = useMemo(() => {
+    return apiZones
+      .map((zone) => mapApiZoneToMapZone(zone, apiZoneStatus))
+      .filter((zone): zone is FokontanyZone => zone !== null)
+  }, [apiZones, apiZoneStatus])
+
+  const center = useMemo(() => {
+    if (zones.length === 0) {
+      return {
+        lat: -21.4522,
+        lng: 47.0851,
+      }
+    }
+
+    return {
+      lat:
+        zones.reduce((sum, zone) => sum + zone.position.lat, 0) / zones.length,
+      lng:
+        zones.reduce((sum, zone) => sum + zone.position.lng, 0) / zones.length,
+    }
+  }, [zones])
+
+  const filteredZones = zones.filter((zone) => {
     const zoneStatus = zone.zone_status[service].level
 
     return status === 'ALL' || zoneStatus === status
   })
 
   const activeAlerts = alerts.filter(
-    (alert) => alert.status === 'ACTIVE' && alert.type === service,
+    (alert) =>
+      alert.status === 'ACTIVE' &&
+      alert.type === service &&
+      zones.some((zone) => zone.id === alert.zoneId),
   )
 
   const selectedZone =
-    fokontanyZones.find((zone) => zone.id === selectedZoneId) ?? null
+    zones.find((zone) => zone.id === selectedZoneId) ?? null
 
   return (
     <div className='relative h-screen overflow-hidden'>
@@ -232,11 +300,59 @@ type ZoneStatus = {
 type FokontanyZone = {
   id: string
   name: string
+  address: string
+  created_at: string
   position: {
     lat: number
     lng: number
   }
   zone_status: Record<ServiceType, ZoneStatus>
+}
+
+const mapApiZoneToMapZone = (
+  zone: ZONE,
+  statuses: ZONE_STATUS[],
+): FokontanyZone | null => {
+  const lat = Number(zone.latitude)
+  const lng = Number(zone.longitude)
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    console.warn('[Carte] Zone ignoree: coordonnees invalides', zone)
+    return null
+  }
+
+  return {
+    id: String(zone.id),
+    name: zone.quartier,
+    address: zone.address,
+    created_at: zone.created_at,
+    position: {
+      lat,
+      lng,
+    },
+    zone_status: getZoneStatusByService(zone.id, statuses),
+  }
+}
+
+const getZoneStatusByService = (
+  zoneId: number,
+  statuses: ZONE_STATUS[],
+): Record<ServiceType, ZoneStatus> => {
+  const defaultStatus: Record<ServiceType, ZoneStatus> = {
+    WATER: { level: 'NORMAL', availability_score: 100 },
+    ELECTRICITY: { level: 'NORMAL', availability_score: 100 },
+  }
+
+  statuses
+    .filter((status) => Number(status.zone) === Number(zoneId))
+    .forEach((status) => {
+      defaultStatus[status.service_type] = {
+        level: status.status,
+        availability_score: status.availability_score,
+      }
+    })
+
+  return defaultStatus
 }
 
 type Alert = {
@@ -286,81 +402,6 @@ const statusStyles: Record<
     textClass: 'text-emerald-600',
   },
 }
-
-const fokontanyZones: FokontanyZone[] = [
-  {
-    id: 'tanambao',
-    name: 'Tanambao',
-    position: { lat: -21.453, lng: 47.0842 },
-    zone_status: {
-      WATER: { level: 'CRITICAL', availability_score: 40 },
-      ELECTRICITY: { level: 'MEDIUM', availability_score: 65 },
-    },
-  },
-  {
-    id: 'mahazengy',
-    name: 'Mahazengy',
-    position: { lat: -21.4478, lng: 47.0874 },
-    zone_status: {
-      WATER: { level: 'MEDIUM', availability_score: 58 },
-      ELECTRICITY: { level: 'NORMAL', availability_score: 91 },
-    },
-  },
-  {
-    id: 'tsianolondroa',
-    name: 'Tsianolondroa',
-    position: { lat: -21.4564, lng: 47.089 },
-    zone_status: {
-      WATER: { level: 'NORMAL', availability_score: 86 },
-      ELECTRICITY: { level: 'CRITICAL', availability_score: 35 },
-    },
-  },
-  {
-    id: 'ankazondrano',
-    name: 'Ankazondrano',
-    position: { lat: -21.4507, lng: 47.0788 },
-    zone_status: {
-      WATER: { level: 'CRITICAL', availability_score: 32 },
-      ELECTRICITY: { level: 'NORMAL', availability_score: 88 },
-    },
-  },
-  {
-    id: 'ambatomena',
-    name: 'Ambatomena',
-    position: { lat: -21.4602, lng: 47.083 },
-    zone_status: {
-      WATER: { level: 'MEDIUM', availability_score: 69 },
-      ELECTRICITY: { level: 'MEDIUM', availability_score: 63 },
-    },
-  },
-  {
-    id: 'isaha',
-    name: 'Isaha',
-    position: { lat: -21.4427, lng: 47.0818 },
-    zone_status: {
-      WATER: { level: 'NORMAL', availability_score: 94 },
-      ELECTRICITY: { level: 'NORMAL', availability_score: 96 },
-    },
-  },
-  {
-    id: 'talatamaty',
-    name: 'Talatamaty',
-    position: { lat: -21.4628, lng: 47.0915 },
-    zone_status: {
-      WATER: { level: 'MEDIUM', availability_score: 61 },
-      ELECTRICITY: { level: 'CRITICAL', availability_score: 28 },
-    },
-  },
-  {
-    id: 'ambozontany',
-    name: 'Ambozontany',
-    position: { lat: -21.4389, lng: 47.0912 },
-    zone_status: {
-      WATER: { level: 'NORMAL', availability_score: 82 },
-      ELECTRICITY: { level: 'MEDIUM', availability_score: 70 },
-    },
-  },
-]
 
 const alerts: Alert[] = [
   {
@@ -454,7 +495,10 @@ function ZonePopup({ zone }: { zone: FokontanyZone }) {
     <div className='min-w-60 space-y-3 p-1 text-sm text-slate-800'>
       <div>
         <p className='text-base font-bold'>📍 {zone.name}</p>
-        <p className='text-xs text-slate-500'>Fokontany de Fianarantsoa</p>
+        <p className='text-xs text-slate-500'>{zone.address}</p>
+        <p className='text-xs text-slate-500'>
+          Position: {zone.position.lat}, {zone.position.lng}
+        </p>
       </div>
 
       <div className='space-y-1.5'>
