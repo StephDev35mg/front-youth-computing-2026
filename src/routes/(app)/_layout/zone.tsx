@@ -1,3 +1,6 @@
+import type { Zone } from '@/api/zone/getAll.zone.api'
+import { useGetZones} from '@/api/zone/getAll.zone.api'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -33,7 +36,7 @@ import {
   Search,
   Trash2,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export const Route = createFileRoute('/(app)/_layout/zone')({
   component: RouteComponent,
@@ -42,9 +45,9 @@ export const Route = createFileRoute('/(app)/_layout/zone')({
 type ZoneStatus = 'NORMAL' | 'MEDIUM' | 'CRITICAL'
 type ZoneFilter = 'ALL' | ZoneStatus
 
-type Zone = {
-  id: number
-  name_zone: string
+type ZoneDisplay = {
+  id: string
+  name: string
   status: ZoneStatus
   image: string
 }
@@ -55,32 +58,6 @@ const zoneImages = [
   'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=80',
   'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80',
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-]
-
-const initialZones: Zone[] = [
-  { id: 1, name_zone: 'Tanambao', status: 'NORMAL', image: zoneImages[0] },
-  { id: 2, name_zone: 'Antarandolo', status: 'MEDIUM', image: zoneImages[1] },
-  {
-    id: 8,
-    name_zone: 'Ankazondrano',
-    status: 'CRITICAL',
-    image: zoneImages[2],
-  },
-  { id: 11, name_zone: 'Ampasambazaha', status: 'NORMAL', image: zoneImages[3] },
-  { id: 12, name_zone: 'Ivory', status: 'MEDIUM', image: zoneImages[4] },
-  { id: 14, name_zone: 'Anjoma', status: 'NORMAL', image: zoneImages[1] },
-  { id: 15, name_zone: 'Sahalava', status: 'CRITICAL', image: zoneImages[0] },
-  { id: 16, name_zone: 'Ankofafa', status: 'NORMAL', image: zoneImages[2] },
-  { id: 17, name_zone: 'Maroimby', status: 'MEDIUM', image: zoneImages[3] },
-  { id: 18, name_zone: 'Ambalakely', status: 'NORMAL', image: zoneImages[4] },
-  {
-    id: 19,
-    name_zone: 'Ambatomainty',
-    status: 'CRITICAL',
-    image: zoneImages[1],
-  },
-  { id: 22, name_zone: 'Andrainjato', status: 'MEDIUM', image: zoneImages[2] },
-  { id: 23, name_zone: 'Mahazoarivo', status: 'NORMAL', image: zoneImages[0] },
 ]
 
 const statusStyles: Record<ZoneStatus, string> = {
@@ -105,17 +82,31 @@ const zoneTabs: { label: string; value: ZoneFilter }[] = [
 const zonesPerPage = 8
 
 function RouteComponent() {
-  const [zones, setZones] = useState<Zone[]>(initialZones)
+  const { data: apiZones = [], isLoading, error } = useGetZones()
+  const [zones, setZones] = useState<ZoneDisplay[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [zoneToDelete, setZoneToDelete] = useState<Zone | null>(null)
+  const [zoneToDelete, setZoneToDelete] = useState<ZoneDisplay | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<ZoneFilter>('ALL')
   const [currentPage, setCurrentPage] = useState(1)
-  const [form, setForm] = useState({ name_zone: '' })
+  const [form, setForm] = useState({ name: '' })
+
+  // Transform API data to display format
+  useEffect(() => {
+    if (apiZones.length > 0) {
+      const displayZones = apiZones.map((zone, index) => ({
+        id: zone.id,
+        name: zone.quartier,
+        status: 'NORMAL' as ZoneStatus,
+        image: zoneImages[index % zoneImages.length],
+      }))
+      setZones(displayZones)
+    }
+  }, [apiZones])
 
   const filteredZones = useMemo(() => {
     return zones.filter((zone) => {
-      const matchesSearch = zone.name_zone
+      const matchesSearch = zone.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase().trim())
       const matchesTab = activeTab === 'ALL' || zone.status === activeTab
@@ -132,17 +123,17 @@ function RouteComponent() {
   )
 
   const resetForm = () => {
-    setForm({ name_zone: '' })
+    setForm({ name: '' })
   }
 
   const handleAddZone = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    if (!form.name_zone.trim()) return
+    if (!form.name.trim()) return
 
-    const nextZone: Zone = {
-      id: Math.max(0, ...zones.map((zone) => zone.id)) + 1,
-      name_zone: form.name_zone.trim(),
+    const nextZone: ZoneDisplay = {
+      id: String(Math.max(0, ...zones.map((zone) => parseInt(zone.id))) + 1),
+      name: form.name.trim(),
       status: 'NORMAL',
       image: zoneImages[zones.length % zoneImages.length],
     }
@@ -153,9 +144,32 @@ function RouteComponent() {
     setIsDialogOpen(false)
   }
 
-  const handleDeleteZone = (id: number) => {
+  const handleDeleteZone = (id: string) => {
     setZones((currentZones) => currentZones.filter((zone) => zone.id !== id))
     setZoneToDelete(null)
+  }
+
+  if (isLoading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='text-center'>
+          <div className='mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-primary'></div>
+          <p className='text-muted-foreground'>Chargement des zones...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className='min-h-[calc(100vh-4rem)] space-y-6 bg-background text-foreground'>
+        <Card className='border-destructive/50'>
+          <CardContent className='flex min-h-40 items-center justify-center text-center text-sm text-destructive'>
+            Erreur lors du chargement des zones. Veuillez réessayer.
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -191,12 +205,12 @@ function RouteComponent() {
               </DialogHeader>
 
               <div className='space-y-2'>
-                <Label htmlFor='name_zone'>Nom de la zone</Label>
+                <Label htmlFor='name'>Nom de la zone</Label>
                 <Input
-                  id='name_zone'
-                  value={form.name_zone}
+                  id='name'
+                  value={form.name}
                   onChange={(event) =>
-                    setForm({ name_zone: event.target.value })
+                    setForm({ name: event.target.value })
                   }
                   placeholder='Ex: Tanambao'
                   required
@@ -261,7 +275,7 @@ function RouteComponent() {
             <div className='relative h-44 overflow-hidden rounded-t-xl'>
               <img
                 src={zone.image}
-                alt={zone.name_zone}
+                alt={zone.name}
                 className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
               />
               <div className='absolute inset-0 bg-black/35' />
@@ -302,7 +316,7 @@ function RouteComponent() {
             <CardContent className='space-y-4 p-4'>
               <div className='min-w-0'>
                 <h2 className='truncate text-base font-semibold'>
-                  {zone.name_zone}
+                  {zone.name}
                 </h2>
                 <p className='mt-1 flex items-center gap-1.5 text-sm text-muted-foreground'>
                   <MapPin className='size-4 text-primary' />
@@ -392,7 +406,7 @@ function RouteComponent() {
             <DialogDescription>
               Voulez-vous vraiment supprimer la zone{' '}
               <span className='font-medium text-foreground'>
-                {zoneToDelete?.name_zone}
+                {zoneToDelete?.name}
               </span>
               ? Cette action est irréversible.
             </DialogDescription>
