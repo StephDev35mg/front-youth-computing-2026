@@ -27,10 +27,10 @@ export const DELETE_TASK = 'tasks/delete/'
 
 //Zones
 export const GET_ZONES ='zone/get_zone/'
+export const GET_ZONE_STATUS = 'zone-status/get_zone_status/'
 
 //Reports
 export const GET_REPORTS = 'reports/'
-
 
 
 
