@@ -4,7 +4,7 @@ import Functionality from '@/components/landingPage/functionality'
 import Sponsor from '@/components/landingPage/Sponsor'
 import Teams from '@/components/landingPage/Teams'
 import Footer from '@/components/landingPage/Footer'
-import Pricing from '@/components/landingPage/Pricing'
+
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 export const Route = createFileRoute('/')({
   component: LandingPage,
@@ -16,7 +16,6 @@ function LandingPage() {
       <Welcome />
       <Functionality />
       <Sponsor />
-      <Pricing />
       <Teams />
       <Footer />
       <DotLottieReact

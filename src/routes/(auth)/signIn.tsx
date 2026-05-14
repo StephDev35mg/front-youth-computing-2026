@@ -143,12 +143,12 @@ function SignIn() {
           </form>
         </CardContent>
 
-        <CardFooter className='flex justify-center text-sm text-muted-foreground'>
+        {/* <CardFooter className='flex justify-center text-sm text-muted-foreground'>
           Pas de compte ?{' '}
           <Button variant='link' className='ml-1 px-0'>
             <Link to='/signUp'>Créer un compte</Link>
           </Button>
-        </CardFooter>
+        </CardFooter> */}
       </div>
       <DotLottieReact
         src='https://lottie.host/a22979ec-7626-4a13-9ad9-705ee249be14/O4ptf0McXA.lottie'
