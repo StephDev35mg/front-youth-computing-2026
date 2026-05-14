@@ -1,3 +1,4 @@
+import { useGetZoneStatus } from '@/api/dashboard/get.zone_status.api'
 import type { RootState } from '@/redux/store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -43,30 +44,116 @@ function RouteComponent() {
 
   const user = useSelector((state: RootState) => state.client.user)
 
-  const metrics = {
-    electricity: {
-      title: 'Zones sans électricité',
-      label: 'Électricité',
-      value: 46,
-      affected: 8,
-      icon: Zap,
-      tone: 'text-amber-500',
-      softBg: 'bg-amber-500/10',
-      ring: 'ring-amber-500/20',
-      description: '8 zones affectées actuellement',
-    },
-    water: {
-      title: 'Zones sans eau',
-      label: 'Eau',
-      value: 72,
-      affected: 12,
-      icon: Droplets,
-      tone: 'text-sky-500',
-      softBg: 'bg-sky-500/10',
-      ring: 'ring-sky-500/20',
-      description: '12 zones affectées actuellement',
-    },
-  }
+  const {
+    data: zoneStatus = [],
+    isLoading,
+    isError,
+  } = useGetZoneStatus()
+
+  const filteredZones = useMemo(() => {
+  return zoneStatus.filter(
+    item =>
+      item.service_type ===
+      (selectedMetric === 'water'
+        ? 'WATER'
+        : 'ELECTRICITY')
+  )
+}, [zoneStatus, selectedMetric])
+
+const totalZones = filteredZones.length
+
+const criticalZonesCount = zoneStatus.filter(
+  z => z.status === 'CRITICAL',
+).length
+
+const criticalRate =
+  totalZones > 0
+    ? Math.round((criticalZonesCount / totalZones) * 100)
+    : 0
+
+  
+
+const criticalCount = filteredZones.filter(
+  z => z.status === 'CRITICAL',
+).length
+
+const mediumCount = filteredZones.filter(
+  z => z.status === 'MEDIUM',
+).length
+
+const normalCount = filteredZones.filter(
+  z => z.status === 'NORMAL',
+).length
+
+const degradedRate = useMemo(() => {
+  if (!totalZones) return 0
+
+  return Math.round(
+    ((criticalCount + mediumCount) / totalZones) * 100,
+  )
+}, [criticalCount, mediumCount, totalZones])
+
+const systemHealth = degradedRate
+
+
+const averageAvailability = Math.round(
+  filteredZones.reduce(
+    (acc, item) =>
+      acc + Number(item.availability_score),
+    0,
+  ) / (filteredZones.length || 1),
+)
+
+const metrics = {
+  electricity: {
+    title: 'Zones sans électricité',
+    label: 'Électricité',
+    value: systemHealth,
+    affected: criticalCount + mediumCount,
+    icon: Zap,
+    tone: 'text-amber-500',
+    softBg: 'bg-amber-500/10',
+    ring: 'ring-amber-500/20',
+    description: `${criticalCount + mediumCount} zones affectées actuellement`,
+  },
+
+  water: {
+    title: 'Zones sans eau',
+    label: 'Eau',
+    value: systemHealth,
+    affected: criticalCount + mediumCount,
+    icon: Droplets,
+    tone: 'text-sky-500',
+    softBg: 'bg-sky-500/10',
+    ring: 'ring-sky-500/20',
+    description: `${criticalCount + mediumCount} zones affectées actuellement`,
+  },
+}
+
+  // const metrics = {
+  //   electricity: {
+  //     title: 'Zones sans électricité',
+  //     label: 'Électricité',
+  //     value: 46,
+  //     affected: 8,
+  //     icon: Zap,
+  //     tone: 'text-amber-500',
+  //     softBg: 'bg-amber-500/10',
+  //     ring: 'ring-amber-500/20',
+  //     description: '8 zones affectées actuellement',
+  //   },
+  //   water: {
+  //     title: 'Zones sans eau',
+  //     label: 'Eau',
+  //     value: 72,
+  //     affected: 12,
+  //     icon: Droplets,
+  //     tone: 'text-sky-500',
+  //     softBg: 'bg-sky-500/10',
+  //     ring: 'ring-sky-500/20',
+  //     description: '12 zones affectées actuellement',
+  //   },
+  // }
 
   const activeMetric = metrics[selectedMetric]
   const ActiveIcon = activeMetric.icon
@@ -75,39 +162,63 @@ function RouteComponent() {
   const progressOffset =
     circumference - (activeMetric.value / 100) * circumference
 
-  const statusSummary = useMemo(
-    () => [
-      {
-        label: 'Critical',
-        value: selectedMetric === 'water' ? 5 : 3,
-        className: 'bg-red-500/10 text-red-500 ring-red-500/20',
-      },
-      {
-        label: 'Medium',
-        value: selectedMetric === 'water' ? 7 : 5,
-        className: 'bg-orange-500/10 text-orange-500 ring-orange-500/20',
-      },
-      {
-        label: 'Normal',
-        value: selectedMetric === 'water' ? 21 : 25,
-        className: 'bg-emerald-500/10 text-emerald-500 ring-emerald-500/20',
-      },
-    ],
-    [selectedMetric],
-  )
+  // const statusSummary = useMemo(
+  //   () => [
+  //     {
+  //       label: 'Critical',
+  //       value: selectedMetric === 'water' ? 5 : 3,
+  //       className: 'bg-red-500/10 text-red-500 ring-red-500/20',
+  //     },
+  //     {
+  //       label: 'Medium',
+  //       value: selectedMetric === 'water' ? 7 : 5,
+  //       className: 'bg-orange-500/10 text-orange-500 ring-orange-500/20',
+  //     },
+  //     {
+  //       label: 'Normal',
+  //       value: selectedMetric === 'water' ? 21 : 25,
+  //       className: 'bg-emerald-500/10 text-emerald-500 ring-emerald-500/20',
+  //     },
+  //   ],
+  //   [selectedMetric],
+  // )
 
-  const criticalZones =
-    selectedMetric === 'water'
-      ? [
-          { zone: 'Centre-ville', state: 'Critical', value: '91%' },
-          { zone: 'Kintambo', state: 'Critical', value: '84%' },
-          { zone: 'Ngaliema', state: 'Medium', value: '63%' },
-        ]
-      : [
-          { zone: 'Gombe Nord', state: 'Critical', value: '78%' },
-          { zone: 'Limete', state: 'Medium', value: '56%' },
-          { zone: 'Masina', state: 'Medium', value: '49%' },
-        ]
+  const statusSummary = [
+  {
+    label: 'Critical',
+    value: criticalCount,
+    className: 'bg-red-500/10 text-red-500 ring-red-500/20',
+  },
+  {
+    label: 'Medium',
+    value: mediumCount,
+    className: 'bg-orange-500/10 text-orange-500 ring-orange-500/20',
+  },
+  {
+    label: 'Normal',
+    value: normalCount,
+    className: 'bg-emerald-500/10 text-emerald-500 ring-emerald-500/20',
+  },
+]
+
+
+
+  // const criticalZones =
+  //   selectedMetric === 'water'
+  //     ? [
+  //         { zone: 'Centre-ville', state: 'Critical', value: '91%' },
+  //         { zone: 'Kintambo', state: 'Critical', value: '84%' },
+  //         { zone: 'Ngaliema', state: 'Medium', value: '63%' },
+  //       ]
+  //     : [
+  //         { zone: 'Gombe Nord', state: 'Critical', value: '78%' },
+  //         { zone: 'Limete', state: 'Medium', value: '56%' },
+  //         { zone: 'Masina', state: 'Medium', value: '49%' },
+  //       ]
+
+  const criticalZones = filteredZones
+  .filter(item => item.status !== 'NORMAL')
+  .slice(0, 5)
 
   const alerts =
     selectedMetric === 'water'
@@ -122,10 +233,19 @@ function RouteComponent() {
           'Équipe technique assignée à la ligne Est',
         ]
 
-  const chartValues =
-    selectedMetric === 'water'
-      ? [42, 58, 51, 67, 72, 64, 79, 72]
-      : [28, 34, 41, 37, 46, 52, 43, 46]
+  // const chartValues =
+  //   selectedMetric === 'water'
+  //     ? [42, 58, 51, 67, 72, 64, 79, 72]
+  //     : [28, 34, 41, 37, 46, 52, 43, 46]
+
+  const chartValues = useMemo(() => {
+    const base = degradedRate
+
+    return Array.from({ length: 8 }).map((_, i) => {
+      const noise = Math.sin(i) * 5
+      return Math.max(0, Math.min(100, base + noise))
+    })
+  }, [degradedRate])
 
   useEffect(() => {
     if (!connected) return
@@ -242,7 +362,7 @@ function RouteComponent() {
               <span className='text-sm text-muted-foreground'>
                 Zones suivies
               </span>
-              <span className='text-2xl font-semibold'>33</span>
+              <span className='text-2xl font-semibold'>{totalZones}</span>
             </div>
             <div className='space-y-3'>
               <div className='flex items-center justify-between text-sm'>
@@ -307,21 +427,21 @@ function RouteComponent() {
                   <div>
                     <p className='font-medium'>{zone.zone}</p>
                     <p className='text-xs text-muted-foreground'>
-                      Impact estimé {zone.value}
+                      Impact estimé {4}
                     </p>
                   </div>
                 </div>
                 <Badge
                   variant={
-                    zone.state === 'Critical' ? 'destructive' : 'outline'
+                    zone.status === 'CRITICAL' ? 'destructive' : 'outline'
                   }
                   className={
-                    zone.state === 'Medium'
+                    zone.status === 'MEDIUM'
                       ? 'bg-orange-500/10 text-orange-500 ring-1 ring-orange-500/20'
                       : ''
                   }
                 >
-                  {zone.state}
+                  {zone.status}
                 </Badge>
               </div>
             ))}
