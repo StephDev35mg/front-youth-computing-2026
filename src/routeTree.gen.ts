@@ -22,6 +22,7 @@ import { Route as appLayoutSecurityRouteImport } from './routes/(app)/_layout/se
 import { Route as appLayoutProfileRouteImport } from './routes/(app)/_layout/profile'
 import { Route as appLayoutNotificationsRouteImport } from './routes/(app)/_layout/notifications'
 import { Route as appLayoutDashboardRouteImport } from './routes/(app)/_layout/dashboard'
+import { Route as appLayoutCarteRouteImport } from './routes/(app)/_layout/carte'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -87,6 +88,11 @@ const appLayoutDashboardRoute = appLayoutDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => appLayoutRouteRoute,
 } as any)
+const appLayoutCarteRoute = appLayoutCarteRouteImport.update({
+  id: '/carte',
+  path: '/carte',
+  getParentRoute: () => appLayoutRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/signIn': typeof authSignInRoute
   '/signUp': typeof authSignUpRoute
   '/verifyEmail': typeof authVerifyEmailRoute
+  '/carte': typeof appLayoutCarteRoute
   '/dashboard': typeof appLayoutDashboardRoute
   '/notifications': typeof appLayoutNotificationsRoute
   '/profile': typeof appLayoutProfileRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/signIn': typeof authSignInRoute
   '/signUp': typeof authSignUpRoute
   '/verifyEmail': typeof authVerifyEmailRoute
+  '/carte': typeof appLayoutCarteRoute
   '/dashboard': typeof appLayoutDashboardRoute
   '/notifications': typeof appLayoutNotificationsRoute
   '/profile': typeof appLayoutProfileRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/(auth)/signIn': typeof authSignInRoute
   '/(auth)/signUp': typeof authSignUpRoute
   '/(auth)/verifyEmail': typeof authVerifyEmailRoute
+  '/(app)/_layout/carte': typeof appLayoutCarteRoute
   '/(app)/_layout/dashboard': typeof appLayoutDashboardRoute
   '/(app)/_layout/notifications': typeof appLayoutNotificationsRoute
   '/(app)/_layout/profile': typeof appLayoutProfileRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/signIn'
     | '/signUp'
     | '/verifyEmail'
+    | '/carte'
     | '/dashboard'
     | '/notifications'
     | '/profile'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/signIn'
     | '/signUp'
     | '/verifyEmail'
+    | '/carte'
     | '/dashboard'
     | '/notifications'
     | '/profile'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/(auth)/signIn'
     | '/(auth)/signUp'
     | '/(auth)/verifyEmail'
+    | '/(app)/_layout/carte'
     | '/(app)/_layout/dashboard'
     | '/(app)/_layout/notifications'
     | '/(app)/_layout/profile'
@@ -282,10 +294,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appLayoutDashboardRouteImport
       parentRoute: typeof appLayoutRouteRoute
     }
+    '/(app)/_layout/carte': {
+      id: '/(app)/_layout/carte'
+      path: '/carte'
+      fullPath: '/carte'
+      preLoaderRoute: typeof appLayoutCarteRouteImport
+      parentRoute: typeof appLayoutRouteRoute
+    }
   }
 }
 
 interface appLayoutRouteRouteChildren {
+  appLayoutCarteRoute: typeof appLayoutCarteRoute
   appLayoutDashboardRoute: typeof appLayoutDashboardRoute
   appLayoutNotificationsRoute: typeof appLayoutNotificationsRoute
   appLayoutProfileRoute: typeof appLayoutProfileRoute
@@ -294,6 +314,7 @@ interface appLayoutRouteRouteChildren {
 }
 
 const appLayoutRouteRouteChildren: appLayoutRouteRouteChildren = {
+  appLayoutCarteRoute: appLayoutCarteRoute,
   appLayoutDashboardRoute: appLayoutDashboardRoute,
   appLayoutNotificationsRoute: appLayoutNotificationsRoute,
   appLayoutProfileRoute: appLayoutProfileRoute,

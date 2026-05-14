@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux'
 import { toast } from 'sonner'
 import { useEffect } from 'react'
 
-export const Route = createFileRoute('/(app)/_layout/dashboard')({
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api'
+export const Route = createFileRoute('/(app)/_layout/carte')({
   validateSearch: (search: Record<string, unknown>) => ({
     connected:
       search.connected === true ||
@@ -31,6 +32,30 @@ function RouteComponent() {
       search: { connected: false },
     })
   }, [connected, router])
+  const center = {
+    lat: -18.8792,
+    lng: 47.5079,
+  }
 
-  return <div className='space-y-6'>Dashboard</div>
+  return (
+    <div className='space-y-6'>
+      <div className='flex items-start justify-between gap-4'>
+        <div>
+          <h1 className='text-3xl font-semibold'>Dashboard</h1>
+          <p className='text-sm text-muted-foreground'>
+            Bienvenue less{user?.username ? `, ${user.username}` : ''}.
+          </p>
+        </div>
+      </div>
+      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+        <GoogleMap
+          mapContainerStyle={{ width: '100%', height: '100vh' }}
+          center={center}
+          zoom={13}
+        >
+          <Marker position={center} />
+        </GoogleMap>
+      </LoadScript>
+    </div>
+  )
 }
