@@ -43,7 +43,7 @@ function RouteComponent() {
         <div>
           <h1 className='text-3xl font-semibold'>Dashboard</h1>
           <p className='text-sm text-muted-foreground'>
-            Bienvenue{user?.username ? `, ${user.username}` : ''}.
+            Bienvenue less{user?.username ? `, ${user.username}` : ''}.
           </p>
         </div>
       </div>
