@@ -9,6 +9,7 @@ export default function AppSidebar() {
     { title: 'Dashboard', icon: Home, to: '/dashboard' },
     { title: 'Carte', icon: Map, to: '/carte' },
     { title: 'Alertes', icon: Bell, to: '/alerts', badge: true },
+    { title: 'Predictions', icon: Bell, to: '/predictions', badge: true },
     { title: 'zones', icon: Settings, to: '/zone' },
     { title: 'Profile', icon: Shield, to: '/profile' },
   ]
