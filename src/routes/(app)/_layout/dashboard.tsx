@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { toast } from 'sonner'
 import { useEffect } from 'react'
 
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api'
 export const Route = createFileRoute('/(app)/_layout/dashboard')({
   validateSearch: (search: Record<string, unknown>) => ({
     connected:
@@ -21,7 +22,6 @@ function RouteComponent() {
 
   const user = useSelector((state: RootState) => state.client.user)
 
-
   useEffect(() => {
     if (!connected) return
 
@@ -32,8 +32,11 @@ function RouteComponent() {
       search: { connected: false },
     })
   }, [connected, router])
+  const center = {
+    lat: -18.8792,
+    lng: 47.5079,
+  }
 
-  
   return (
     <div className='space-y-6'>
       <div className='flex items-start justify-between gap-4'>
