@@ -43,10 +43,19 @@ function RouteComponent() {
         <div>
           <h1 className='text-3xl font-semibold'>Dashboard</h1>
           <p className='text-sm text-muted-foreground'>
-            
+            Bienvenue{user?.username ? `, ${user.username}` : ''}.
           </p>
         </div>
       </div>
+      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+        <GoogleMap
+          mapContainerStyle={{ width: '100%', height: '100vh' }}
+          center={center}
+          zoom={13}
+        >
+          <Marker position={center} />
+        </GoogleMap>
+      </LoadScript>
     </div>
   )
 }
