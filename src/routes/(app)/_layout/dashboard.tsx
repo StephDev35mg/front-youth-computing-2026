@@ -139,7 +139,7 @@ function RouteComponent() {
   }, [connected, router])
 
   return (
-    <div className='min-h-[calc(100vh-4rem)] space-y-6 bg-background text-foreground'>
+    <div className='min-h-[calc(100vh-4rem)] flex-1 space-y-6 bg-background text-foreground'>
       <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
         <div>
           
