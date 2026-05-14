@@ -9,7 +9,7 @@ function Security() {
     <div>
       <h1 className='text-3xl font-semibold'>Security</h1>
       <p className='mt-2 text-sm text-muted-foreground'>
-        Page en cours de construction.
+        Page en cours de construction
       </p>
     </div>
   )
