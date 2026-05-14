@@ -7,10 +7,10 @@ import {
   GoogleMap,
   InfoWindow,
   LoadScript,
-  Marker,
   OverlayView,
 } from '@react-google-maps/api'
 
+import { cn } from '@/lib/utils'
 import { useGetZones } from '@/api/carte/get_zone.api'
 import type { ZONE } from '@/api/carte/get_zone.api'
 import { useGetZoneStatus } from '@/api/carte/get_status.api'
@@ -208,31 +208,28 @@ function RouteComponent() {
 
                 <Circle
                   center={zone.position}
-                  radius={125}
+                  radius={85}
                   options={{
-                    fillColor: statusStyle.hex,
-                    fillOpacity: 0.22,
-                    strokeColor: statusStyle.hex,
-                    strokeOpacity: 0.95,
+                    fillColor: '#020617',
+                    fillOpacity: 0.08,
+                    strokeColor: '#020617',
+                    strokeOpacity: 0.08,
                     strokeWeight: 3,
                   }}
                   onClick={() => setSelectedZoneId(zone.id)}
                 />
 
-                <Marker
+                <OverlayView
                   position={zone.position}
-                  onClick={() => setSelectedZoneId(zone.id)}
-                  icon={{
-                    url: statusStyle.markerUrl,
-                  }}
-                  label={{
-                    text: `${serviceIcons[service]} ${currentStatus.availability_score}%`,
-                    color: '#111827',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                  }}
-                  title={`${zone.name} - ${currentStatus.level}`}
-                />
+                  mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                >
+                  <MapStatusMarker
+                    service={service}
+                    status={currentStatus}
+                    zoneName={zone.name}
+                    onClick={() => setSelectedZoneId(zone.id)}
+                  />
+                </OverlayView>
 
                 {prediction ? (
                   <OverlayView
@@ -382,24 +379,36 @@ const statusStyles: Record<
   StatusLevel,
   {
     hex: string
-    markerUrl: string
     textClass: string
+    markerClass: string
+    haloClass: string
+    ringClass: string
+    badgeClass: string
   }
 > = {
   CRITICAL: {
     hex: '#ef4444',
-    markerUrl: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
     textClass: 'text-red-600',
+    markerClass: 'border-red-200 bg-red-600 text-white shadow-red-500/40',
+    haloClass: 'bg-red-500',
+    ringClass: 'ring-red-500/40',
+    badgeClass: 'border-red-200 bg-red-50 text-red-700',
   },
   MEDIUM: {
     hex: '#f59e0b',
-    markerUrl: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
     textClass: 'text-amber-600',
+    markerClass: 'border-amber-200 bg-amber-400 text-slate-950 shadow-amber-500/30',
+    haloClass: 'bg-amber-400',
+    ringClass: 'ring-amber-400/35',
+    badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
   },
   NORMAL: {
     hex: '#22c55e',
-    markerUrl: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
     textClass: 'text-emerald-600',
+    markerClass: 'border-emerald-200 bg-emerald-500 text-white shadow-emerald-500/25',
+    haloClass: 'bg-emerald-500',
+    ringClass: 'ring-emerald-500/30',
+    badgeClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
   },
 }
 
@@ -483,6 +492,67 @@ function LegendItem({ color, label }: { color: string; label: string }) {
       <span className={`size-2.5 rounded-full ${color}`} />
       <span>{label}</span>
     </div>
+  )
+}
+
+function MapStatusMarker({
+  service,
+  status,
+  zoneName,
+  onClick,
+}: {
+  service: ServiceType
+  status: ZoneStatus
+  zoneName: string
+  onClick: () => void
+}) {
+  const isCritical = status.level === 'CRITICAL'
+  const style = statusStyles[status.level]
+
+  return (
+    <button
+      className='group relative flex -translate-x-1/2 -translate-y-full flex-col items-center outline-none'
+      onClick={onClick}
+      title={`${zoneName} - ${status.level}`}
+      type='button'
+    >
+      <span className='relative grid size-14 place-items-center'>
+        <span
+          className={cn(
+            'absolute size-14 rounded-full opacity-20 blur-sm transition group-hover:opacity-35',
+            style.haloClass,
+            isCritical && 'animate-ping opacity-45',
+          )}
+        />
+        {isCritical ? (
+          <span className='absolute size-11 animate-pulse rounded-full border-2 border-red-200/80 bg-red-500/20' />
+        ) : null}
+        <span
+          className={cn(
+            'relative grid size-10 place-items-center rounded-full border-2 shadow-xl ring-4 transition duration-200 group-hover:-translate-y-0.5 group-hover:scale-105',
+            style.markerClass,
+            style.ringClass,
+            isCritical && 'animate-pulse',
+          )}
+        >
+          <span className='text-lg leading-none'>{serviceIcons[service]}</span>
+        </span>
+        <span
+          className={cn(
+            'absolute top-8 rounded-full border px-2 py-0.5 text-[11px] font-extrabold leading-none shadow-md',
+            style.badgeClass,
+          )}
+        >
+          {status.availability_score}%
+        </span>
+      </span>
+
+      {isCritical ? (
+        <span className='mt-1 rounded-full border border-red-200 bg-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-red-600 shadow-lg shadow-red-500/15'>
+          Critique
+        </span>
+      ) : null}
+    </button>
   )
 }
 
