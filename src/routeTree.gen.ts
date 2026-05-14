@@ -17,12 +17,13 @@ import { Route as authSignInRouteImport } from './routes/(auth)/signIn'
 import { Route as authConfirmSignInRouteImport } from './routes/(auth)/confirmSignIn'
 import { Route as authConfirmRegisterRouteImport } from './routes/(auth)/confirmRegister'
 import { Route as appLayoutRouteRouteImport } from './routes/(app)/_layout/route'
-import { Route as appLayoutSettingsRouteImport } from './routes/(app)/_layout/settings'
-import { Route as appLayoutSecurityRouteImport } from './routes/(app)/_layout/security'
+import { Route as appLayoutZoneRouteImport } from './routes/(app)/_layout/zone'
 import { Route as appLayoutProfileRouteImport } from './routes/(app)/_layout/profile'
+import { Route as appLayoutPredictionsRouteImport } from './routes/(app)/_layout/predictions'
 import { Route as appLayoutNotificationsRouteImport } from './routes/(app)/_layout/notifications'
 import { Route as appLayoutDashboardRouteImport } from './routes/(app)/_layout/dashboard'
 import { Route as appLayoutCarteRouteImport } from './routes/(app)/_layout/carte'
+import { Route as appLayoutAlertsRouteImport } from './routes/(app)/_layout/alerts'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -63,19 +64,19 @@ const appLayoutRouteRoute = appLayoutRouteRouteImport.update({
   id: '/(app)/_layout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const appLayoutSettingsRoute = appLayoutSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => appLayoutRouteRoute,
-} as any)
-const appLayoutSecurityRoute = appLayoutSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
+const appLayoutZoneRoute = appLayoutZoneRouteImport.update({
+  id: '/zone',
+  path: '/zone',
   getParentRoute: () => appLayoutRouteRoute,
 } as any)
 const appLayoutProfileRoute = appLayoutProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => appLayoutRouteRoute,
+} as any)
+const appLayoutPredictionsRoute = appLayoutPredictionsRouteImport.update({
+  id: '/predictions',
+  path: '/predictions',
   getParentRoute: () => appLayoutRouteRoute,
 } as any)
 const appLayoutNotificationsRoute = appLayoutNotificationsRouteImport.update({
@@ -93,6 +94,11 @@ const appLayoutCarteRoute = appLayoutCarteRouteImport.update({
   path: '/carte',
   getParentRoute: () => appLayoutRouteRoute,
 } as any)
+const appLayoutAlertsRoute = appLayoutAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => appLayoutRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,12 +108,13 @@ export interface FileRoutesByFullPath {
   '/signIn': typeof authSignInRoute
   '/signUp': typeof authSignUpRoute
   '/verifyEmail': typeof authVerifyEmailRoute
+  '/alerts': typeof appLayoutAlertsRoute
   '/carte': typeof appLayoutCarteRoute
   '/dashboard': typeof appLayoutDashboardRoute
   '/notifications': typeof appLayoutNotificationsRoute
+  '/predictions': typeof appLayoutPredictionsRoute
   '/profile': typeof appLayoutProfileRoute
-  '/security': typeof appLayoutSecurityRoute
-  '/settings': typeof appLayoutSettingsRoute
+  '/zone': typeof appLayoutZoneRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -117,12 +124,13 @@ export interface FileRoutesByTo {
   '/signIn': typeof authSignInRoute
   '/signUp': typeof authSignUpRoute
   '/verifyEmail': typeof authVerifyEmailRoute
+  '/alerts': typeof appLayoutAlertsRoute
   '/carte': typeof appLayoutCarteRoute
   '/dashboard': typeof appLayoutDashboardRoute
   '/notifications': typeof appLayoutNotificationsRoute
+  '/predictions': typeof appLayoutPredictionsRoute
   '/profile': typeof appLayoutProfileRoute
-  '/security': typeof appLayoutSecurityRoute
-  '/settings': typeof appLayoutSettingsRoute
+  '/zone': typeof appLayoutZoneRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,12 +142,13 @@ export interface FileRoutesById {
   '/(auth)/signIn': typeof authSignInRoute
   '/(auth)/signUp': typeof authSignUpRoute
   '/(auth)/verifyEmail': typeof authVerifyEmailRoute
+  '/(app)/_layout/alerts': typeof appLayoutAlertsRoute
   '/(app)/_layout/carte': typeof appLayoutCarteRoute
   '/(app)/_layout/dashboard': typeof appLayoutDashboardRoute
   '/(app)/_layout/notifications': typeof appLayoutNotificationsRoute
+  '/(app)/_layout/predictions': typeof appLayoutPredictionsRoute
   '/(app)/_layout/profile': typeof appLayoutProfileRoute
-  '/(app)/_layout/security': typeof appLayoutSecurityRoute
-  '/(app)/_layout/settings': typeof appLayoutSettingsRoute
+  '/(app)/_layout/zone': typeof appLayoutZoneRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,12 +160,13 @@ export interface FileRouteTypes {
     | '/signIn'
     | '/signUp'
     | '/verifyEmail'
+    | '/alerts'
     | '/carte'
     | '/dashboard'
     | '/notifications'
+    | '/predictions'
     | '/profile'
-    | '/security'
-    | '/settings'
+    | '/zone'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,12 +176,13 @@ export interface FileRouteTypes {
     | '/signIn'
     | '/signUp'
     | '/verifyEmail'
+    | '/alerts'
     | '/carte'
     | '/dashboard'
     | '/notifications'
+    | '/predictions'
     | '/profile'
-    | '/security'
-    | '/settings'
+    | '/zone'
   id:
     | '__root__'
     | '/'
@@ -182,12 +193,13 @@ export interface FileRouteTypes {
     | '/(auth)/signIn'
     | '/(auth)/signUp'
     | '/(auth)/verifyEmail'
+    | '/(app)/_layout/alerts'
     | '/(app)/_layout/carte'
     | '/(app)/_layout/dashboard'
     | '/(app)/_layout/notifications'
+    | '/(app)/_layout/predictions'
     | '/(app)/_layout/profile'
-    | '/(app)/_layout/security'
-    | '/(app)/_layout/settings'
+    | '/(app)/_layout/zone'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -259,18 +271,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appLayoutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(app)/_layout/settings': {
-      id: '/(app)/_layout/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof appLayoutSettingsRouteImport
-      parentRoute: typeof appLayoutRouteRoute
-    }
-    '/(app)/_layout/security': {
-      id: '/(app)/_layout/security'
-      path: '/security'
-      fullPath: '/security'
-      preLoaderRoute: typeof appLayoutSecurityRouteImport
+    '/(app)/_layout/zone': {
+      id: '/(app)/_layout/zone'
+      path: '/zone'
+      fullPath: '/zone'
+      preLoaderRoute: typeof appLayoutZoneRouteImport
       parentRoute: typeof appLayoutRouteRoute
     }
     '/(app)/_layout/profile': {
@@ -278,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof appLayoutProfileRouteImport
+      parentRoute: typeof appLayoutRouteRoute
+    }
+    '/(app)/_layout/predictions': {
+      id: '/(app)/_layout/predictions'
+      path: '/predictions'
+      fullPath: '/predictions'
+      preLoaderRoute: typeof appLayoutPredictionsRouteImport
       parentRoute: typeof appLayoutRouteRoute
     }
     '/(app)/_layout/notifications': {
@@ -301,25 +313,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appLayoutCarteRouteImport
       parentRoute: typeof appLayoutRouteRoute
     }
+    '/(app)/_layout/alerts': {
+      id: '/(app)/_layout/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof appLayoutAlertsRouteImport
+      parentRoute: typeof appLayoutRouteRoute
+    }
   }
 }
 
 interface appLayoutRouteRouteChildren {
+  appLayoutAlertsRoute: typeof appLayoutAlertsRoute
   appLayoutCarteRoute: typeof appLayoutCarteRoute
   appLayoutDashboardRoute: typeof appLayoutDashboardRoute
   appLayoutNotificationsRoute: typeof appLayoutNotificationsRoute
+  appLayoutPredictionsRoute: typeof appLayoutPredictionsRoute
   appLayoutProfileRoute: typeof appLayoutProfileRoute
-  appLayoutSecurityRoute: typeof appLayoutSecurityRoute
-  appLayoutSettingsRoute: typeof appLayoutSettingsRoute
+  appLayoutZoneRoute: typeof appLayoutZoneRoute
 }
 
 const appLayoutRouteRouteChildren: appLayoutRouteRouteChildren = {
+  appLayoutAlertsRoute: appLayoutAlertsRoute,
   appLayoutCarteRoute: appLayoutCarteRoute,
   appLayoutDashboardRoute: appLayoutDashboardRoute,
   appLayoutNotificationsRoute: appLayoutNotificationsRoute,
+  appLayoutPredictionsRoute: appLayoutPredictionsRoute,
   appLayoutProfileRoute: appLayoutProfileRoute,
-  appLayoutSecurityRoute: appLayoutSecurityRoute,
-  appLayoutSettingsRoute: appLayoutSettingsRoute,
+  appLayoutZoneRoute: appLayoutZoneRoute,
 }
 
 const appLayoutRouteRouteWithChildren = appLayoutRouteRoute._addFileChildren(
