@@ -12,6 +12,7 @@ export interface SignInDto {
   email: string
   password: string
   username?: string
+  role?: 'Admin'
 }
 
 type SignInResponse = { message: string } | { access: string; user: UserData }
@@ -56,6 +57,7 @@ export const useSignInClient = () => {
         setPendingIdentity({
           email: variables.email,
           username: variables.username,
+          role: variables.role,
         }),
       )
 
