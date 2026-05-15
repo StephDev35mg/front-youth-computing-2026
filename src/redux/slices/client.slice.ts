@@ -25,6 +25,7 @@ interface AuthPayload {
 interface PendingIdentityPayload {
   email: string
   username?: string
+  role?: 'Admin'
 }
 
 const clientSlice = createSlice({
@@ -37,6 +38,7 @@ const clientSlice = createSlice({
         id: 0,
         email: action.payload.email,
         username: action.payload.username,
+        role: action.payload.role,
       }
       state.token = null
     },

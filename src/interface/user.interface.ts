@@ -3,4 +3,5 @@ export interface UserData {
   email: string
   username?: string
   photo?: File
+  role?: 'Admin' | 'User'
 }
