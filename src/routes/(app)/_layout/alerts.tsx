@@ -1,8 +1,8 @@
+import { useGetReports } from '@/api/report/getAll.report.api'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import {
   AlertTriangle,
-  Plus,
   Droplets,
   Zap,
   CheckCircle2,
@@ -46,59 +46,86 @@ type Report = {
   created_at: string
 }
 
-/* ---------------- MOCK DATA ---------------- */
-
-const reports: Report[] = [
-  {
-    id: 1,
-    zone: 'Analakely',
-    service_type: 'WATER',
-    status: 'NOT_AVAILABLE',
-    description: 'Coupure d’eau généralisée dans le quartier',
-    created_at: '2026-05-14 10:30',
-  },
-  {
-    id: 2,
-    zone: 'Ambalapaiso',
-    service_type: 'ELECTRICITY',
-    status: 'AVAILABLE',
-    description: 'Panne résolue après intervention',
-    created_at: '2026-05-14 09:10',
-  },
-  {
-    id: 3,
-    zone: 'Tanambao',
-    service_type: 'WATER',
-    status: 'NOT_AVAILABLE',
-    description: 'Faible pression d’eau signalée',
-    created_at: '2026-05-14 08:40',
-  },
-]
-
 /* ---------------- COMPONENT ---------------- */
 
 function AlertsPage() {
+  const { data, isLoading, isError } = useGetReports()
   const [selected, setSelected] = useState<Report | null>(null)
   const [search, setSearch] = useState('')
 
-  /* ---------------- KPIs ---------------- */
+  const reports = useMemo<Report[]>(() => {
+    if (!data?.length) return []
+
+    return data.map((report) => {
+      const zoneName =
+        typeof report.zone === 'string'
+          ? report.zone
+          : typeof report.zone === 'number'
+          ? String(report.zone)
+          : report.zone?.name ?? report.zone?.title ?? report.zone?.zone ?? ''
+
+      return {
+        id: Number(report.id),
+        zone: zoneName,
+        service_type: (report.service_type ?? 'WATER') as
+          | 'WATER'
+          | 'ELECTRICITY',
+        status: (report.status ?? 'NOT_AVAILABLE') as
+          | 'AVAILABLE'
+          | 'NOT_AVAILABLE',
+        description: report.description ?? '',
+        created_at: report.created_at
+          ? new Date(report.created_at).toLocaleString('fr-FR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '',
+      }
+    })
+  }, [data])
 
   const kpis = useMemo(() => {
     return {
       total: reports.length,
-      active: reports.filter(r => r.status === 'NOT_AVAILABLE').length,
-      water: reports.filter(r => r.service_type === 'WATER').length,
-      electricity: reports.filter(r => r.service_type === 'ELECTRICITY').length,
+      active: reports.filter((r) => r.status === 'NOT_AVAILABLE').length,
+      water: reports.filter((r) => r.service_type === 'WATER').length,
+      electricity: reports.filter((r) => r.service_type === 'ELECTRICITY').length,
     }
-  }, [])
-
-  /* ---------------- FILTER ---------------- */
+  }, [reports])
 
   const filtered = useMemo(() => {
-    return reports.filter(r =>
+    return reports.filter((r) =>
       r.zone.toLowerCase().includes(search.toLowerCase())
     )
-  }, [search])
+  }, [search, reports])
+
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <Card className="p-6 text-center">
+          <p className="font-semibold">Chargement des rapports...</p>
+        </Card>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="p-6">
+        <Card className="p-6 border-red-200">
+          <p className="font-semibold text-red-600">
+            Impossible de charger les alertes.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Vérifiez votre connexion ou réessayez plus tard.
+          </p>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -115,10 +142,6 @@ function AlertsPage() {
           </p>
         </div>
 
-        <Button className="gap-2">
-          <Plus size={16} />
-          Nouvelle alerte
-        </Button>
       </div>
 
       {/* KPI CARDS */}

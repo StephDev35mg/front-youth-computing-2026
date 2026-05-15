@@ -5,11 +5,12 @@ import { useQuery } from '@tanstack/react-query'
 
 
 export interface REPORT {
-  id: string
-  quartier: string
-  name?: string
-  longitude?: number
-  latitude?: number
+  id: number | string
+  zone?: string | number | { name?: string; title?: string; zone?: string }
+  service_type?: 'WATER' | 'ELECTRICITY' | string
+  status?: 'AVAILABLE' | 'NOT_AVAILABLE' | string
+  description?: string | null
+  created_at?: string
 }
 
 export const getAllReports = async (): Promise<REPORT[]> => {
